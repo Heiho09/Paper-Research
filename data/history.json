@@ -1,0 +1,11 @@
+{
+  "issues": [
+    {
+      "date": "2026-11-16",
+      "source_ids": [
+        "nobel:2026:chemistry:background"
+      ],
+      "sha256": "b876d6118a54111f24021ba8b39ba8ee93680e29195e154f00cd4891bbe02537"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 **AI API를 호출하지 않으며 API 키나 이메일 설정이 필요 없습니다.**
 사용자가 채팅에서 요청하면 저장된 근거를 읽어 한국어 브리핑과 문서를 작성합니다.
 
-[최근 수집 자료](collections/README.md) · [편집 기준](AGENTS.md) · [문체 예시](examples/style-guide.md)
+[시험 발행 1호](briefings/2026-11-16/README.md) · [최근 수집 자료](collections/README.md) · [편집 기준](AGENTS.md) · [문체 예시](examples/style-guide.md)
 
 ## 이렇게 사용하세요
 
@@ -41,8 +41,9 @@ GitHub 부하에 따라 지연될 수 있습니다. 예약이 실제 실행됐�
 사용하지 않는 API 키를 폐기하려면 발급 서비스에서 직접 폐기하면 됩니다.
 
 수동 실행: Actions → Weekly research collection → Run workflow. 모드 선택은 없습니다.
-예약 중지: Actions에서 워크플로를 Disable 하거나 Actions 변수 `COLLECTION_ENABLED=false` 설정.
-재개: 워크플로 Enable 및 해당 변수 삭제 또는 `true` 설정.
+예약 중지: Actions에서 Weekly research collection 워크플로를 Disable 합니다.
+재개: 같은 워크플로를 Enable 합니다. 별도 활성화 변수는 필요 없습니다.
+기존 `COLLECTION_ENABLED` 변수도 더 이상 읽지 않습니다.
 기본 브랜치의 쓰기/브랜치 보호 정책이 푸시를 막으면 실패하며 강제로 우회하지 않습니다.
 실패 시 artifact에서 수집 결과를 확인하고 저장소 정책에 맞게 조정합니다.
 공개 저장소의 표준 GitHub-hosted runner는 일반적으로 무료이며 비공개 저장소는 계정의

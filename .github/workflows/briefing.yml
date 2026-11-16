@@ -14,8 +14,6 @@ concurrency:
 
 jobs:
   collect:
-    # Enabled by default. Set COLLECTION_ENABLED=false to pause scheduled runs.
-    if: github.event_name == 'workflow_dispatch' || vars.COLLECTION_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
