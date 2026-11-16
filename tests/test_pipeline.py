@@ -1,5 +1,4 @@
 import copy
-import json
 import tempfile
 import unittest
 from datetime import date
@@ -17,6 +16,53 @@ def fixture():
 
 
 class PipelineTests(unittest.TestCase):
+    def test_archive_is_repeatable_and_does_not_mark_sources_read(self):
+        evidence, _ = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = b.archive(evidence, root / "collections")
+            second = b.archive(evidence, root / "collections")
+            self.assertEqual(first, second)
+            self.assertEqual(b.read_json(first / "evidence.json"), evidence)
+            latest = b.read_json(root / "collections/latest.json")
+            self.assertEqual(root / "collections" / latest["path"], first / "evidence.json")
+            self.assertIn("A robot paper", (first / "README.md").read_text())
+            self.assertEqual(b.seen_ids(b.history(root / "history.json")), set())
+
+    def test_changed_collection_retains_previous_snapshot(self):
+        evidence, _ = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            first = b.archive(evidence, directory)
+            updated = copy.deepcopy(evidence)
+            updated["sources"][0]["abstract"] = "Updated evidence"
+            second = b.archive(updated, directory)
+            self.assertNotEqual(first, second)
+            self.assertEqual(b.read_json(first / "evidence.json"), evidence)
+
+    def test_empty_collection_cannot_replace_latest(self):
+        evidence, _ = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            b.archive(evidence, directory)
+            before = (Path(directory) / "latest.json").read_bytes()
+            evidence["sources"] = []
+            with self.assertRaisesRegex(ValueError, "No sources"):
+                b.archive(evidence, directory)
+            self.assertEqual(before, (Path(directory) / "latest.json").read_bytes())
+
+    def test_older_snapshot_does_not_replace_latest(self):
+        evidence, _ = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            b.archive(evidence, directory)
+            evidence["date"] = "2026-11-15"
+            b.archive(evidence, directory)
+            self.assertEqual(b.read_json(Path(directory) / "latest.json")["date"], "2026-11-16")
+
+    def test_collection_errors_visible_in_reading_index(self):
+        evidence, _ = fixture()
+        evidence["errors"] = [{"source": "arxiv", "error": "HTTP 503"}]
+        self.assertIn("HTTP 503", b.collection_index(evidence))
+        self.assertIn("순위가 아닙니다", b.collection_index(evidence))
+
     def test_unknown_citation_rejected(self):
         evidence, result = fixture()
         result["items"][0]["sources"] = ["invented:reference"]
@@ -72,24 +118,6 @@ class PipelineTests(unittest.TestCase):
             self.assertFalse((root / "history.json").exists())
             self.assertFalse((root / "issues").exists())
 
-    @patch.dict("os.environ", {"OPENAI_API_KEY": ""})
-    @patch.object(b, "request")
-    def test_missing_key_never_calls_model(self, request):
-        with self.assertRaisesRegex(ValueError, "OPENAI_API_KEY"):
-            b.generate(fixture()[0], {})
-        request.assert_not_called()
-
-    @patch.dict("os.environ", {"OPENAI_API_KEY": "test-only", "OPENAI_MODEL": "gpt-6.1-terra"})
-    @patch.object(b, "request")
-    def test_model_request_and_incomplete_response(self, request):
-        request.return_value = json.dumps({"status": "incomplete", "output": []}).encode()
-        with self.assertRaisesRegex(ValueError, "did not complete"):
-            b.generate(fixture()[0], {"reasoning_effort": "medium", "max_output_tokens": 12000, "max_items": 4})
-        payload = request.call_args.kwargs["payload"]
-        self.assertEqual(payload["model"], "gpt-6.1-terra")
-        self.assertEqual(payload["reasoning"]["effort"], "medium")
-        self.assertFalse(payload["store"])
-
     @patch.object(s, "get_json")
     def test_unannounced_award_falls_back_and_advances(self, get_json):
         award = {"category": {"en": "Physics"}, "dateAwarded": "2025-10-07", "laureates": [{"knownName": {"en": "Example"}, "motivation": {"en": "example discovery"}}]}
@@ -113,15 +141,6 @@ class PipelineTests(unittest.TestCase):
         record = s.pubmed("test", date(2026, 11, 16), 45)[0]
         self.assertEqual(record["date"], "2026-11-01")
         self.assertIn("2027", record["issue_date"])
-
-    @patch.dict("os.environ", {"OPENAI_API_KEY": "test-only", "OPENAI_MODEL": "gpt-6.1-terra"})
-    @patch.object(b, "request")
-    def test_completed_model_output_validates_and_renders(self, request):
-        evidence, expected = fixture()
-        request.return_value = json.dumps({"status": "completed", "model": "gpt-6.1-terra", "usage": {"input_tokens": 100, "output_tokens": 200}, "output": [{"content": [{"type": "output_text", "text": json.dumps(expected)}]}]}).encode()
-        result, run = b.generate(evidence, {"reasoning_effort": "medium", "max_output_tokens": 12000, "max_items": 4})
-        self.assertIn("로봇은 어떻게 배울까?", b.render(result, evidence))
-        self.assertEqual(run["usage"]["output_tokens"], 200)
 
     @patch.object(s, "award_topic", side_effect=s.SourceError("nobel: HTTP 503"))
     @patch.object(s, "arxiv", return_value=[])

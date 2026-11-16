@@ -14,21 +14,15 @@ class SourceError(RuntimeError):
     pass
 
 
-def request(url, *, payload=None, key=None, attempts=3):
+def request(url, *, attempts=3):
     headers = {"User-Agent": "PaperResearch/0.1 (research briefing)"}
-    if key:
-        headers["Authorization"] = "Bearer " + key
-    body = None
-    if payload is not None:
-        headers["Content-Type"] = "application/json"
-        body = json.dumps(payload).encode()
     for attempt in range(attempts):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, data=body, headers=headers), timeout=90) as response:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=90) as response:
                 return response.read()
         except urllib.error.HTTPError as exc:
-            # Do not log response bodies or credentials. Do not retry billed POSTs.
-            if payload is None and exc.code in (429, 500, 502, 503, 504) and attempt + 1 < attempts:
+            # Only public GET requests; no model endpoint or secret binding.
+            if exc.code in (429, 500, 502, 503, 504) and attempt + 1 < attempts:
                 time.sleep(2 ** attempt)
                 continue
             raise SourceError(f"{urllib.parse.urlsplit(url).hostname}: HTTP {exc.code}") from None
