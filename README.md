@@ -6,6 +6,15 @@
 
 [시험 발행 1호](briefings/2026-11-16/README.md) · [최근 수집 자료](collections/README.md) · [편집 기준](AGENTS.md) · [문체 예시](examples/style-guide.md)
 
+## 다른 사람도 만들어 보기
+
+[GitHub 자동화 제작·배포 안내서](docs/GITHUB_AUTOMATION_GUIDE.ko.md),
+[공유용 PDF](docs/GITHUB_AUTOMATION_GUIDE.ko.pdf),
+[ChatGPT에 붙여 넣는 브리핑 요청문](docs/CHAT_BRIEFING_PROMPT.ko.md)을 제공합니다.
+현재 운영 저장소의 공개 여부와 템플릿 지정은 별도입니다.
+개인 운영 자료를 제외한 시작용 ZIP은 `python tools/export_starter.py`로
+`build/weekly-research-starter.zip`에 만들 수 있습니다. 라이선스는 공개 배포 전에 선택합니다.
+
 ## 이렇게 사용하세요
 
 이 채팅에서 다음처럼 요청하면 됩니다.
