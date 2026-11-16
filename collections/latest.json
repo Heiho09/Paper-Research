@@ -1,8 +1,8 @@
 {
   "date": "2026-11-16",
-  "collected_at": "2026-11-16T16:49:41+09:00",
-  "path": "2026-11-16/31f79cbc6a5c1773/evidence.json",
-  "count": 43,
+  "collected_at": "2026-11-16T17:08:15+09:00",
+  "path": "2026-11-16/659fb16ea797d7a8/evidence.json",
+  "count": 55,
   "source_errors": [],
-  "sha256": "31f79cbc6a5c1773fb4b8ac761f31be8cc49a883228e8923edc4b3c5aafdf622"
+  "sha256": "659fb16ea797d7a8b6649fa4e19cdadac1f1ebb0765359fd33aa128cae2b96ae"
 }
