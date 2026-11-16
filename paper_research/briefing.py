@@ -53,6 +53,11 @@ def validate(result, evidence, max_items):
             raise ValueError("Invalid story")
         for paragraph in item["story"]:
             text(paragraph, "story")
+        if "outcomes" in item:
+            if not isinstance(item["outcomes"], dict):
+                raise ValueError("Invalid outcomes")
+            for field in ("demonstrated", "application", "readiness"):
+                text(item["outcomes"].get(field), "outcomes." + field)
         ids = item.get("sources")
         if not isinstance(ids, list) or not ids or any(not isinstance(i, str) or i not in records for i in ids):
             raise ValueError("Unknown/missing evidence id")
@@ -152,6 +157,11 @@ def render(result, evidence):
         for paragraph in item["story"]:
             lines += [md(paragraph), ""]
         lines += ["**왜 흥미로운가:** " + md(item["why"]), "", "**여기까지는 조심:** " + md(item["caution"]), ""]
+        if item.get("outcomes"):
+            lines += ["**확인된 결과물·기대 활용**", ""]
+            for field, label in (("demonstrated", "확인된 성과"), ("application", "활용·기대 효과"), ("readiness", "적용 단계·남은 검증")):
+                lines += [f"- **{label}:** {md(item['outcomes'][field])}"]
+            lines += [""]
         for note in item["glossary"]:
             lines += [f"> **{md(note['term'])}** — {md(note['meaning'])}", ""]
         for identity in item["sources"]:
