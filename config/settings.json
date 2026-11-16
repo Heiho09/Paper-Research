@@ -7,7 +7,8 @@
   "queries": {
     "robotics": "cat:cs.RO",
     "ai_mind": "(cat:cs.AI OR cat:cs.CL) AND (all:reasoning OR all:metacognition OR all:consciousness)",
-    "medicine": "(surgery[Title/Abstract] OR therapeutics[Title/Abstract] OR clinical trial[Publication Type]) NOT review[Publication Type]"
+    "medicine": "(surgery[Title/Abstract] OR therapeutics[Title/Abstract] OR clinical trial[Publication Type]) NOT review[Publication Type]",
+    "quantum": "cat:quant-ph AND (all:quantum computing OR all:quantum computer OR all:quantum error correction OR all:quantum processor)"
   },
   "mode": "collect_only"
 }

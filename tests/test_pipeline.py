@@ -146,7 +146,7 @@ class PipelineTests(unittest.TestCase):
     @patch.object(s, "arxiv", return_value=[])
     @patch.object(s, "pubmed", return_value=[])
     def test_source_failure_is_reported(self, pubmed, arxiv, award_topic):
-        settings = {"queries": {"robotics": "r", "medicine": "m", "ai_mind": "a"}, "lookback_days": 45}
+        settings = {"queries": {"robotics": "r", "medicine": "m", "ai_mind": "a", "quantum": "q"}, "lookback_days": 45}
         evidence = s.collect(settings, date(2026, 11, 16), set())
         self.assertEqual(evidence["sources"], [])
         self.assertEqual(evidence["errors"][0]["source"], "award")

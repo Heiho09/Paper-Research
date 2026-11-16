@@ -138,6 +138,7 @@ def related_award_papers(topic, today, seen):
 def collect(settings, today, seen):
     sources, errors = [], []
     jobs = [("award", lambda: award_topic(today, seen)), ("robotics", lambda: arxiv(settings["queries"]["robotics"], "robotics", today, settings["lookback_days"])), ("medicine", lambda: pubmed(settings["queries"]["medicine"], today, settings["lookback_days"])), ("ai_mind", lambda: arxiv(settings["queries"]["ai_mind"], "ai_mind", today, settings["lookback_days"]))]
+    jobs.append(("quantum", lambda: arxiv(settings["queries"]["quantum"], "quantum", today, settings["lookback_days"])))
     for name, job in jobs:
         try:
             values = job()

@@ -44,7 +44,7 @@ def validate(result, evidence, max_items):
     sections, used = set(), set()
     for item in items:
         section = item.get("section")
-        if section not in {"award", "robotics", "medicine", "ai_mind"} or section in sections:
+        if section not in {"award", "robotics", "medicine", "ai_mind", "quantum"} or section in sections:
             raise ValueError("Unknown or duplicate section")
         sections.add(section)
         for field in ("title", "takeaway", "why", "caution"):
@@ -86,7 +86,7 @@ def md(value):
 
 
 def collection_index(evidence):
-    labels = {"award": "수상 연구", "award_paper": "수상 관련 검색 후보", "robotics": "로보틱스", "medicine": "의학·생명", "ai_mind": "AI·인지"}
+    labels = {"award": "수상 연구", "award_paper": "수상 관련 검색 후보", "robotics": "로보틱스", "medicine": "의학·생명", "ai_mind": "AI·인지", "quantum": "양자 컴퓨팅"}
     lines = [f"# 수집 자료 · {evidence['date']}", "", "AI 요약 없이 저장한 자료입니다. 검색 후보이며 추천 순위가 아닙니다.", "", f"수집 시각: {evidence.get('collected_at', evidence['date'])}", "", f"자료 {len(evidence['sources'])}건 · 출처 오류 {len(evidence.get('errors', []))}건", "", "[구조화된 근거 자료](evidence.json)", ""]
     for error in evidence.get("errors", []):
         lines += [f"- 수집 오류: {md(error['source'])} — {md(error['error'])}"]
