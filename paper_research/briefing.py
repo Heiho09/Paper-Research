@@ -129,7 +129,26 @@ def render(result, evidence):
     if evidence.get("errors"):
         lines += ["일부 출처 수집에 실패해 해당 자료는 제외했습니다. 수집 기록을 참고하세요.", ""]
     for number, item in enumerate(result["items"], 1):
-        lines += [f"## {number}. {md(item['title'])}", "", f"**{md(item['takeaway'])}**", ""]
+        lines += [f"## {number}. {md(item['title'])}", ""]
+        for identity in item["sources"]:
+            source = records[identity]
+            award = source["access"] == "official_award_metadata"
+            names = source.get("authors", [])
+            authors = ", ".join(names[:3]) + (f" 외 (총 {len(names)}명)" if len(names) > 3 else "")
+            affiliations = "; ".join(source.get("affiliations", [])) or "이번 수집 자료에서 미확인"
+            lines += [f"- **{'자료' if award else '논문 원제'}:** [{md(source['title'])}]({source['url']})",
+                      f"- **{'수상자' if award else '저자(기재 순서)'}:** {md(authors or '미확인')}",
+                      f"- **소속:** {md(affiliations)}",
+                      f"- **{'발표' if award else '공개일·발표처'}:** {md(source.get('date', '미확인'))} · {md(source.get('venue', '미확인'))}"]
+            if source.get("issue_date") and source["issue_date"] != source.get("date"):
+                lines += ["  - 별도 저널 호수 날짜: " + md(source["issue_date"])]
+            study = "공식 수상 해설 (개별 논문 아님)" if award else item.get("research_type") or ", ".join(source.get("study_types", [])) or "원자료에서 미확인"
+            lines += [f"- **연구·자료 유형:** {md(study)}",
+                      f"- **심사 상태:** {md(source.get('peer_review', '미확인'))}"]
+            if source.get("doi"):
+                lines += ["- **DOI:** " + md(source["doi"])]
+            lines += [""]
+        lines += [f"**{md(item['takeaway'])}**", ""]
         for paragraph in item["story"]:
             lines += [md(paragraph), ""]
         lines += ["**왜 흥미로운가:** " + md(item["why"]), "", "**여기까지는 조심:** " + md(item["caution"]), ""]

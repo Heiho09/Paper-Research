@@ -47,7 +47,8 @@
         ],
         "sources": [
           "arxiv:2611.18491"
-        ]
+        ],
+        "research_type": "로봇 물체 전달 정책의 학습·비교 실험"
       },
       {
         "section": "medicine",
@@ -72,7 +73,8 @@
         ],
         "sources": [
           "doi:10.1080/14017431.2026.2751272"
-        ]
+        ],
+        "research_type": "돼지 16마리 무작위 배정 비교 실험 · 전임상 동물 연구"
       },
       {
         "section": "ai_mind",
@@ -97,7 +99,8 @@
         ],
         "sources": [
           "arxiv:2611.18114"
-        ]
+        ],
+        "research_type": "해석 가능한 모델 구성 및 뇌 활동 예측 평가"
       }
     ],
     "omissions": []
