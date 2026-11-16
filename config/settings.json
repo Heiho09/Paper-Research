@@ -1,0 +1,16 @@
+{
+  "timezone": "Asia/Seoul",
+  "requested_model": "6.1 Terra Medium",
+  "api_model": "gpt-6.1-terra",
+  "reasoning_effort": "medium",
+  "max_output_tokens": 12000,
+  "lookback_days": 45,
+  "max_items": 4,
+  "email_enabled": false,
+  "schedule": "Thursday 09:00 Asia/Seoul (00:00 UTC)",
+  "queries": {
+    "robotics": "cat:cs.RO",
+    "ai_mind": "(cat:cs.AI OR cat:cs.CL) AND (all:reasoning OR all:metacognition OR all:consciousness)",
+    "medicine": "(surgery[Title/Abstract] OR therapeutics[Title/Abstract] OR clinical trial[Publication Type]) NOT review[Publication Type]"
+  }
+}

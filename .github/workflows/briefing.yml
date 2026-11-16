@@ -1,0 +1,69 @@
+name: Weekly research briefing
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: collect (free), draft (API), publish (API + commit)
+        type: choice
+        options: [collect, draft, publish]
+        default: collect
+  schedule:
+    - cron: '0 0 * * 4' # Thursday 09:00 Asia/Seoul; scheduling may be delayed.
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-research-briefing
+  cancel-in-progress: false
+
+jobs:
+  briefing:
+    # A schedule declaration alone does not enable paid generation.
+    if: github.event_name == 'workflow_dispatch' || vars.BRIEFING_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Collect public sources
+        run: python -m paper_research.briefing collect
+      - name: Generate Korean draft
+        if: github.event_name == 'schedule' || inputs.mode != 'collect'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-6.1-terra' }}
+        run: python -m paper_research.briefing generate
+      - name: Save issue and deduplication history
+        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        run: python -m paper_research.briefing publish
+      - name: Commit generated issue
+        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add briefings data/history.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish weekly research briefing'
+            git push
+          fi
+      - name: Keep evidence and draft for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-briefing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            drafts/current/
+            briefings/
+          if-no-files-found: ignore
+          retention-days: 30
